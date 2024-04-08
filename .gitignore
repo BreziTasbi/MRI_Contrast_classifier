@@ -2,3 +2,4 @@
 *.csv
 git_commands.txt
 structure_explo.ipynb
+model.pth
