@@ -1,6 +1,6 @@
 from torch.utils.data import DataLoader
 from data_manager import Dataset_2D, find_T1w_T2w_paths, dataset_splitter, Dataset_2D, paths_to_Dataset
-from contrast_classifier_Networks import ResNet18SingleChannel
+from contrast_classifier_Networks import ResNet18SingleChannel, FCN
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -21,6 +21,7 @@ def training_one_epoch(model):
         image, label = image.to(device), label.to(device)
         optimizer.zero_grad()
         outputs = model(image)
+        print(outputs.shape, label.shape)
         loss = criterion(outputs, label.float())
         loss.backward()
         optimizer.step()
@@ -47,12 +48,13 @@ val_dataset = paths_to_Dataset(pd_val_data)
 # Define the device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = ResNet18SingleChannel(num_classes=2).to(device)
+#model = ResNet18SingleChannel(num_classes=2).to(device)
+model = FCN().to(device)
 criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Define the number of epochs
-num_epochs = 100
+num_epochs = 1
 
 for epoch in range(num_epochs):
     print(f"Epoch {epoch + 1} / {num_epochs}")
@@ -63,21 +65,24 @@ for epoch in range(num_epochs):
 #save model
 torch.save(model.state_dict(), "model.pth")
 
+#### Evaluate the model
+evaluate = False
 
-# Assess accuracy and F1 score on the validation set
-model.eval()
-val_predictions = []
-val_labels = []
-for i in range(len(val_dataset)):
-    image, label = val_dataset[i]
-    image, label = image.to(device), label.to(device)
-    output = model(image)
-    prediction = torch.round(output)
-    val_predictions.append(prediction.item())
-    val_labels.append(label.item())
+if evaluate:
+    # Assess accuracy and F1 score on the validation set
+    model.eval()
+    val_predictions = []
+    val_labels = []
+    for i in range(len(val_dataset)):
+        image, label = val_dataset[i]
+        image, label = image.to(device), label.to(device)
+        output = model(image)
+        prediction = torch.round(output)
+        val_predictions.append(prediction.item())
+        val_labels.append(label.item())
 
-val_predictions = np.array(val_predictions)
-val_labels = np.array(val_labels)
+    val_predictions = np.array(val_predictions)
+    val_labels = np.array(val_labels)
 
-accuracy = np.mean(val_predictions == val_labels)
-f1_score = f1_score(val_labels, val_predictions)
+    accuracy = np.mean(val_predictions == val_labels)
+    f1_score = f1_score(val_labels, val_predictions)

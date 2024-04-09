@@ -34,7 +34,7 @@ class Dataset_2D(Dataset):
         if self.transform:
             image = self.transform(path)
             dim_to_squeeze = int(np.random.choice([0,1,2]))
-            roi_min = np.array([15, 15, 15])
+            roi_min = np.array([30, 30, 30])
             roi_max = np.array([-1, -1, -1])
             roi_min[dim_to_squeeze] = 1
             roi_max[dim_to_squeeze] = 1

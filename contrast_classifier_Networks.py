@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torchvision.models as models
+import torch.nn.functional as F
 
 class ResNet18SingleChannel(nn.Module):
     # Define the ResNet18 model with a single image channel and an output value between 0 and 1
@@ -22,3 +23,5 @@ class ResNet18SingleChannel(nn.Module):
         x = self.fc(x)
         x = torch.sigmoid(x)
         return x
+    
+
