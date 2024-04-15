@@ -1,5 +1,5 @@
 from torch.utils.data import DataLoader
-from data_manager import Dataset_2D, find_T1w_T2w_paths, dataset_splitter, Dataset_2D, paths_to_Dataset
+from data_manager import Dataset_2D, find_T1w_T2w_paths, dataset_splitter, paths_to_Dataset
 from contrast_classifier_Networks import ResNet18SingleChannel
 import torch
 import torch.nn as nn
@@ -60,7 +60,7 @@ pd_train_data, pd_val_data = dataset_splitter(t1w_file_paths, t2w_file_paths)
 
 # Create the training and validation datasets
 train_dataset = paths_to_Dataset(pd_train_data)
-val_dataset = paths_to_Dataset(pd_val_data)
+val_dataset = paths_to_Dataset(pd_val_data, val=True)
 
 #### Train the model
 
@@ -69,7 +69,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = ResNet18SingleChannel(num_classes=2).to(device)
 if model_path != 'none':
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path), map_location=device)
     print("Model loaded")
 criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)

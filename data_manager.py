@@ -15,8 +15,11 @@ from monai.transforms import (
     LoadImage,
     SqueezeDim,
     RandRotate,
+    RandSimulateLowResolution,
 )
 import torch
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define a custom dataset class
 class Dataset_2D(Dataset):
